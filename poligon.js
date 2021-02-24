@@ -4,7 +4,6 @@ poligons.push(generatePolygon(5));
 
 translatePolygon(poligons[0],[1,0,0]);
 
-var selectedPoligon = {
     index: 0,
     vIndex: 0,
 }

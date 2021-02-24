@@ -40,7 +40,7 @@ var vshSrc = document.getElementById('shader-vertex').textContent;
 // string kode source untuk fragment shader
 var fshSrc = document.getElementById('shader-fragment').textContent;
  
-// WebGLShader untuk vertex shader
+
 var glVertexShader = createShader(vshSrc, gl.VERTEX_SHADER);
 // WebGLShader untuk fragment shader
 var glFragmentShader = createShader(fshSrc, gl.FRAGMENT_SHADER);
