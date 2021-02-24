@@ -12,6 +12,8 @@ if(!gl) {
 gl.clearColor(1,1,1,1)
 gl.clear(gl.COLOR_BUFFER_BIT)
 
+persegi(-0.5, 0.5)
+
 const sqr = document.getElementById("transformscale")
 sqr.onclick = () => {
     let x = document.getElementById("xscale").value
