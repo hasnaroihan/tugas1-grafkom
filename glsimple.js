@@ -66,7 +66,7 @@ if(!gl.getProgramParameter(glProgram, gl.LINK_STATUS)) {
     throw Error('Could not initialize program\r\n' + infoLog);
 }
 
-var verticesCount = 3;
+var verticesCount = 5;
 var poligon = generatePolygon(verticesCount);
 // rotatePolygon(poligon,Math.PI/6);
 var dataVertex = new Float32Array(poligon.vertex);
@@ -104,9 +104,15 @@ gl.useProgram(glProgram);
 
 function get_projection(angle, a, zMin, zMax) {
     var ang = Math.tan((angle*.5)*Math.PI/180);//angle*.5
+    // return [
+    //     0.5/ang, 0 , 0, 0,
+    //     0, 0.5*a/ang, 0, 0,
+    //     0, 0, -(zMax+zMin)/(zMax-zMin), -1,
+    //     0, 0, (-2*zMax*zMin)/(zMax-zMin), 0
+    // ];
     return [
-        0.5/ang, 0 , 0, 0,
-        0, 0.5*a/ang, 0, 0,
+        1, 0 , 0, 0,
+        0, 1, 0, 0,
         0, 0, -(zMax+zMin)/(zMax-zMin), -1,
         0, 0, (-2*zMax*zMin)/(zMax-zMin), 0
     ];
@@ -117,11 +123,11 @@ var mov_matrix = [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1];
 var view_matrix = [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1];
 
 //translating z
-view_matrix[14] = view_matrix[14]-6; //zoom
+view_matrix[14] = view_matrix[14]-2; //zoom
 
 function translateView(dx, dy) {
-    view_matrix[12] += dx;
-    view_matrix[13] -= dy;
+    mov_matrix[12] += dx;
+    mov_matrix[13] -= dy;
 }
 
 /*=======================rotation========================*/
@@ -140,40 +146,87 @@ function rotateZ(m, angle) {
 
 ////////////// MOuse Interaction //////////////////////
 var drag = false;
+var move = false;
 var old_x, old_y;
 var dX = 0, dY = 0;
 var scale = view_matrix[14];
 var cursorX = 0, cursorY = 0;
+var oldCursorX = 0, oldCursorY = 0;
+
+var invView = inverse(view_matrix);
+var invProj = inverse(proj_matrix);
+var invMov = inverse(mov_matrix);
+var realPos = mul(mul(mul(invProj,invView),invMov),[cursorX, -cursorY, 0, 1])
+
 var mouseDown = function(e) {
-    if (e.which == 2) {
-        drag = true;
-        old_x = e.pageX, old_y = e.pageY;
-        e.preventDefault();
-        return false;
-    }
-    else if (e.which == 1) {
-        alert(cursorX+','+cursorY);
-    }
-    return false;
-};
+    // if (e.which == 2) {
+    //     drag = true;
+    //     old_x = e.pageX, old_y = e.pageY;
+    //     e.preventDefault();
+    //     return false;
+    // }
+    if (e.which == 1) {
+        move = true;
 
-var mouseUp = function(e){
-    drag = false;
-};
-
-var mouseMove = function(e) {
-    if (!drag) {
         let rect = canvas.getBoundingClientRect();
         let x = e.clientX - rect.left;
         let y = e.clientY - rect.top;
         cursorX = -(x - rect.width/2)*scale*2/rect.width;
         cursorY = -(y - rect.height/2)*scale*2/rect.height;
-        return false;
+        console.log(cursorX+','+cursorY);
+        invView = inverse(view_matrix);
+        invProj = inverse(proj_matrix);
+        invMov = inverse(mov_matrix);
+        realPos = mul(mul(mul(invMov,invView),invProj),[cursorX, cursorY, 0, 0])
+        console.log(realPos)
+        nearestVertex(realPos[0], -realPos[1]);
+        oldCursorX = cursorX;
+        oldCursorY = cursorY;
     }
-    dX = (e.pageX-old_x)*(-scale)*1.5/canvas.width,
-    dY = (e.pageY-old_y)*(-scale)*1.5/canvas.height;
-    translateView(dX, dY);
-    old_x = e.pageX, old_y = e.pageY;
+    return false;
+};
+
+var mouseUp = function(e){
+    // drag = false;
+    move = false;
+    // translatePolygon(poligons[1],[cursorX - oldCursorX, - cursorY + oldCursorY,0])
+    // dataVertex = new Float32Array(poligons[1].vertex);
+    // dataColor = new Float32Array(poligons[1].color);
+    
+    // gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
+    // // setting data WebGLBuffer menggunakan ArrayBufferView
+    // gl.bufferData(gl.ARRAY_BUFFER, dataVertex, gl.STATIC_DRAW)
+
+    // gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
+    // // setting data WebGLBuffer menggunakan ArrayBufferView
+    // gl.bufferData(gl.ARRAY_BUFFER, dataColor, gl.STATIC_DRAW);
+};
+
+var mouseMove = function(e) {
+    if (move) {
+        let rect = canvas.getBoundingClientRect();
+        let x = e.clientX - rect.left;
+        let y = e.clientY - rect.top;
+        cursorX = -(x - rect.width/2)*scale*2/rect.width;
+        cursorY = -(y - rect.height/2)*scale*2/rect.height;
+        realPos = mul(mul(mul(invMov,invView),invProj),[cursorX , cursorY , 4, -scale])
+        poligons[selectedPoligon.index].vertex[selectedPoligon.vIndex*3] = realPos[0];
+        poligons[selectedPoligon.index].vertex[selectedPoligon.vIndex*3+1] = - realPos[1];
+    }
+    // else if (drag) {
+    //     // dX = (e.pageX-old_x)*(-scale)*2/canvas.width,
+    //     // dY = (e.pageY-old_y)*(-scale)*2/canvas.height;
+    //     // translateView(dX, dY);
+    //     // old_x = e.pageX, old_y = e.pageY;
+
+    //     let rect = canvas.getBoundingClientRect();
+    //     let x = e.clientX - rect.left;
+    //     let y = e.clientY - rect.top;
+    //     dX = -(x - old_x)*scale*2/rect.width;
+    //     dY = -(y - old_y)*scale*2/rect.height;
+    //     translateView(dX, dY);
+    //     old_y = y, old_x = x;
+    // }
     e.preventDefault();
 };
 
@@ -215,8 +268,20 @@ var animate = function(time) {
     gl.uniformMatrix4fv(Vmatrix, false, view_matrix);
     gl.uniformMatrix4fv(Mmatrix, false, mov_matrix);
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
-    gl.drawArrays(gl.TRIANGLE_FAN, 0, poligon.sides);
+    poligons.forEach(el => {
+        dataVertex = new Float32Array(el.vertex);
+        dataColor = new Float32Array(el.color);
+    
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
+        // setting data WebGLBuffer menggunakan ArrayBufferView
+        gl.bufferData(gl.ARRAY_BUFFER, dataVertex, gl.STATIC_DRAW)
+        gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
+        // setting data WebGLBuffer menggunakan ArrayBufferView
+        gl.bufferData(gl.ARRAY_BUFFER, dataColor, gl.STATIC_DRAW);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
+        gl.drawArrays(gl.TRIANGLE_FAN, 0, el.sides);
+    });
     window.requestAnimationFrame(animate);
 }
 animate(0);

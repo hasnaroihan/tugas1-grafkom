@@ -1,3 +1,14 @@
+var poligons = [];
+poligons.push(generatePolygon(3));
+poligons.push(generatePolygon(5));
+
+translatePolygon(poligons[0],[1,0,0]);
+
+var selectedPoligon = {
+    index: 0,
+    vIndex: 0,
+}
+
 function generatePolygon(sides, radius = 1) {
     let vertex =[];
     let color = [];
@@ -53,3 +64,61 @@ function rotatePolygon(polygon, angle) {
     }
     translatePolygon(polygon, polygon.anchor);
 }
+
+function changeColor(polygon, color) {
+    for (let i = 0; i < polygon.sides; i++) {
+        polygon.color[i*3] = color[0];
+        polygon.color[i*3+1] = color[1];
+        polygon.color[i*3+2] = color[2];
+    }
+}
+
+function nearestVertex(cursorX, cursorY) {
+    let min = Number.POSITIVE_INFINITY;
+    for (let i = 0; i < poligons.length; i++) {
+        const el = poligons[i];
+        for (let j = 0; j < el.sides; j++) {
+            let x = el.vertex[j*3];
+            let y = el.vertex[j*3+1];
+            let manDis = Math.abs(cursorX-x) + Math.abs(cursorY-y);
+            if (manDis < min) {
+                min = manDis;
+                selectedPoligon.index = i;
+                selectedPoligon.vIndex = j;
+            }
+        }
+    }
+}
+
+function loadPoligonControl() {
+    let dom = document.getElementById('poligon');
+    dom.innerHTML = '<h3>Poligon</h3>'
+    let i = 0;
+    poligons.forEach(pol => {
+        dom.innerHTML += `<div>
+            jumlah sisi: ${pol.sides}<br>
+            <label for="red-${i}">Merah</label>
+            <input type="range" id="red-${i}" min="0" max="100" value="${pol.color[0]*100}" onmousemove="for (let j = 0; j < poligons[${i}].sides; j++) {
+                poligons[${i}].color[j*3] = document.getElementById('red-${i}').value/100;;
+            }"><br>
+            <label for="green-${i}">Hijau</label>
+            <input type="range" id="green-${i}" min="0" max="100" value="${pol.color[1]*100}" onmousemove="for (let j = 0; j < poligons[${i}].sides; j++) {
+                poligons[${i}].color[j*3+1] = document.getElementById('green-${i}').value/100;;
+            }"><br>
+            <label for="blue-${i}">Biru</label>
+            <input type="range" id="blue-${i}" min="0" max="100" value="${pol.color[2]*100}" onmousemove="for (let j = 0; j < poligons[${i}].sides; j++) {
+                poligons[${i}].color[j*3+2] = document.getElementById('blue-${i}').value/100;;
+            }"><br>
+            <hr>
+        </div>`
+        i++;
+    });
+
+    dom.innerHTML += `
+    <label for="sides">Jumlah sisi:</label>
+    <input type="number" id="sides" name="sides" min="3" value="3">
+    <button onclick="poligons.push(generatePolygon(document.getElementById('sides').value)); loadPoligonControl();">Add Polygon</button>
+    `
+}
+
+loadPoligonControl()
