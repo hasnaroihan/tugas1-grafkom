@@ -39,6 +39,18 @@ function openFile(e) {
                 this.anchor[1] = sumY/this.sides;
             }
         });
+        lines.forEach(pol => {
+            pol.updateAnchor = function() {
+                let sumX = 0;
+                let sumY = 0;
+                for (let i = 0; i < this.sides*3; i+=3) {
+                    sumX += this.vertex[i];
+                    sumY += this.vertex[i+1];
+                }
+                this.anchor[0] = sumX/this.sides;
+                this.anchor[1] = sumY/this.sides;
+            }
+        });
         squares.forEach(squ => {
             squ.vertex = function() {
                 return [this.anchor[0]+this.side/2,this.anchor[1]+this.side/2, 0,

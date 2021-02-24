@@ -197,6 +197,7 @@ var mouseUp = function(e){
     // drag = false;
     move = false;
     poligons[selectedPoligon.index].updateAnchor();
+    lines[selectedLine.index].updateAnchor();
     // translatePolygon(poligons[1],[cursorX - oldCursorX, - cursorY + oldCursorY,0])
     // dataVertex = new Float32Array(poligons[1].vertex);
     // dataColor = new Float32Array(poligons[1].color);
