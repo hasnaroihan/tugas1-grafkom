@@ -1,9 +1,7 @@
 var canvas = document.getElementById('canvas');
 
 var gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-
-var selectedMethod = 0;
-
+ 
 if(!gl) {
   // ada masalah, entah tidak support WebGL atau masalah lainnya...
   alert('Inisiasi WebGL gagal');
@@ -42,7 +40,7 @@ var vshSrc = document.getElementById('shader-vertex').textContent;
 // string kode source untuk fragment shader
 var fshSrc = document.getElementById('shader-fragment').textContent;
  
-
+// WebGLShader untuk vertex shader
 var glVertexShader = createShader(vshSrc, gl.VERTEX_SHADER);
 // WebGLShader untuk fragment shader
 var glFragmentShader = createShader(fshSrc, gl.FRAGMENT_SHADER);
@@ -69,10 +67,10 @@ if(!gl.getProgramParameter(glProgram, gl.LINK_STATUS)) {
 }
 
 var verticesCount = 5;
-var poligon = generatePolygon(verticesCount);
+var line = generateLine(verticesCount);
 // rotatePolygon(poligon,Math.PI/6);
-var dataVertex = new Float32Array(poligon.vertex);
-var dataColor = new Float32Array(poligon.color);
+var dataVertex = new Float32Array(line.vertex);
+var dataColor = new Float32Array(line.color);
 
 // membuat objeck WebGLBuffer
 var vertex_buffer = gl.createBuffer();
@@ -175,18 +173,7 @@ var mouseDown = function(e) {
         invMov = inverse(mov_matrix);
         realPos = mul(mul(mul(invMov,invView),invProj),[cursorX, cursorY, 0, 0])
         // console.log(realPos)
-        let minpol = nearestVertex(realPos[0], -realPos[1]);
-        let minsqu = nearestAnchor(realPos[0], -realPos[1]);
-        let minli = nearestLineVertex(realPos[0], -realPos[1]);
-        if (minpol < minsqu && minpol < minli) {
-            selectedMethod = 0;
-        }
-        else if (minli < minsqu) {
-            selectedMethod = 2;
-        }
-        else {
-            selectedMethod = 1;
-        }
+        nearestVertex(realPos[0], -realPos[1]);
         oldCursorX = cursorX;
         oldCursorY = cursorY;
     }
@@ -196,7 +183,7 @@ var mouseDown = function(e) {
 var mouseUp = function(e){
     // drag = false;
     move = false;
-    poligons[selectedPoligon.index].updateAnchor();
+    lines[selectedLine.index].updateAnchor();
     // translatePolygon(poligons[1],[cursorX - oldCursorX, - cursorY + oldCursorY,0])
     // dataVertex = new Float32Array(poligons[1].vertex);
     // dataColor = new Float32Array(poligons[1].color);
@@ -218,17 +205,8 @@ var mouseMove = function(e) {
         cursorX = -(x - rect.width/2)*scale*2/rect.width;
         cursorY = -(y - rect.height/2)*scale*2/rect.height;
         realPos = mul(mul(mul(invMov,invView),invProj),[cursorX , cursorY , 4, -scale])
-        if (selectedMethod == 0) {
-            poligons[selectedPoligon.index].vertex[selectedPoligon.vIndex*3] = realPos[0];
-            poligons[selectedPoligon.index].vertex[selectedPoligon.vIndex*3+1] = - realPos[1];
-        }
-        else if(selectedMethod == 1){
-            squares[selectedSquare].anchor = [realPos[0], -realPos[1],0];
-        }
-        else if(selectedMethod == 2){
-            lines[selectedLine.index].vertex[selectedLine.vIndex*3] = realPos[0];
-            lines[selectedLine.index].vertex[selectedLine.vIndex*3+1] = - realPos[1];
-        }
+        lines[selectedLine.index].vertex[selectedLine.vIndex*3] = realPos[0];
+        lines[selectedLine.index].vertex[selectedLine.vIndex*3+1] = - realPos[1];
     }
     // else if (drag) {
     //     // dX = (e.pageX-old_x)*(-scale)*2/canvas.width,
@@ -285,21 +263,6 @@ var animate = function(time) {
     gl.uniformMatrix4fv(Vmatrix, false, view_matrix);
     gl.uniformMatrix4fv(Mmatrix, false, mov_matrix);
 
-    poligons.forEach(el => {
-        dataVertex = new Float32Array(el.vertex);
-        dataColor = new Float32Array(el.color);
-    
-        gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
-        // setting data WebGLBuffer menggunakan ArrayBufferView
-        gl.bufferData(gl.ARRAY_BUFFER, dataVertex, gl.STATIC_DRAW)
-        gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
-        // setting data WebGLBuffer menggunakan ArrayBufferView
-        gl.bufferData(gl.ARRAY_BUFFER, dataColor, gl.STATIC_DRAW);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
-        gl.drawArrays(gl.TRIANGLE_FAN, 0, el.sides);
-    });
-
     lines.forEach(el => {
         dataVertex = new Float32Array(el.vertex);
         dataColor = new Float32Array(el.color);
@@ -312,22 +275,7 @@ var animate = function(time) {
         gl.bufferData(gl.ARRAY_BUFFER, dataColor, gl.STATIC_DRAW);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
-        gl.drawArrays(gl.LINE_STRIP, 0, el.sides);
-    });
-
-    squares.forEach(el => {
-        dataVertex = new Float32Array(el.vertex());
-        dataColor = new Float32Array(el.color);
-    
-        gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
-        // setting data WebGLBuffer menggunakan ArrayBufferView
-        gl.bufferData(gl.ARRAY_BUFFER, dataVertex, gl.STATIC_DRAW)
-        gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
-        // setting data WebGLBuffer menggunakan ArrayBufferView
-        gl.bufferData(gl.ARRAY_BUFFER, dataColor, gl.STATIC_DRAW);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
-        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        gl.drawArrays(gl.LINES, 0, el.sides);
     });
     window.requestAnimationFrame(animate);
 }
