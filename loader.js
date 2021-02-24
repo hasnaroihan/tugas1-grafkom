@@ -39,6 +39,32 @@ function openFile(e) {
                 this.anchor[1] = sumY/this.sides;
             }
         });
+        squares.forEach(squ => {
+            squ.vertex = function() {
+                return [this.anchor[0]+this.side/2,this.anchor[1]+this.side/2, 0,
+                this.anchor[0]-this.side/2,this.anchor[1]+this.side/2, 0,
+                this.anchor[0]+this.side/2,this.anchor[1]-this.side/2, 0,
+                this.anchor[0]-this.side/2,this.anchor[1]-this.side/2, 0]
+            }
+            squ.translate = function(matrix) {
+                this.anchor[0] += matrix[0];
+                this.anchor[1] += matrix[1];
+                this.anchor[2] += matrix[2];
+            }
+            squ.changeColor = function(matrix) {
+                if (matrix.length == 3) {
+                    let temp = []
+                    temp.concat(matrix);
+                    temp.concat(matrix);
+                    temp.concat(matrix);
+                    temp.concat(matrix);
+                    this.color = temp;
+                }
+                else{
+                    this.color = matrix;
+                }
+            }
+        });
     };
     reader.readAsText(file);
 }

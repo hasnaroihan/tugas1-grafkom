@@ -97,21 +97,21 @@ function loadLineControl() {
     let i = 0;
     lines.forEach(pol => {
         dom.innerHTML += `<div>
-            <label for="red-${i}">Merah</label>
-            <input type="range" id="red-${i}" min="0" max="100" value="${pol.color[0]*100}" onmousemove="for (let j = 0; j < lines[${i}].sides; j++) {
-                lines[${i}].color[j*3] = document.getElementById('red-${i}').value/100;;
+            <label for="redl-${i}">Merah</label>
+            <input type="range" id="redl-${i}" min="0" max="100" value="${pol.color[0]*100}" onmousemove="for (let j = 0; j < lines[${i}].sides; j++) {
+                lines[${i}].color[j*3] = document.getElementById('redl-${i}').value/100;;
             }"><br>
-            <label for="green-${i}">Hijau</label>
-            <input type="range" id="green-${i}" min="0" max="100" value="${pol.color[1]*100}" onmousemove="for (let j = 0; j < lines[${i}].sides; j++) {
+            <label for="greenl-${i}">Hijau</label>
+            <input type="range" id="greenl-${i}" min="0" max="100" value="${pol.color[1]*100}" onmousemove="for (let j = 0; j < lines[${i}].sides; j++) {
                 lines[${i}].color[j*3+1] = document.getElementById('green-${i}').value/100;;
             }"><br>
-            <label for="blue-${i}">Biru</label>
-            <input type="range" id="blue-${i}" min="0" max="100" value="${pol.color[2]*100}" onmousemove="for (let j = 0; j < lines[${i}].sides; j++) {
-                lines[${i}].color[j*3+2] = document.getElementById('blue-${i}').value/100;;
+            <label for="bluel-${i}">Biru</label>
+            <input type="range" id="bluel-${i}" min="0" max="100" value="${pol.color[2]*100}" onmousemove="for (let j = 0; j < lines[${i}].sides; j++) {
+                lines[${i}].color[j*3+2] = document.getElementById('bluel-${i}').value/100;;
             }"><br>
-            <label for="angle-${i}">Sudut (derajat):</label>
-            <input type="number" id="angle-${i}" name="sides" min="0" max="360" value="0">
-            <button onclick="rotateLine(lines[${i}],document.getElementById('angle-${i}').value*2*Math.PI/360)">rotate</button>
+            <label for="anglel-${i}">Sudut (derajat):</label>
+            <input type="number" id="anglel-${i}" name="sides" min="0" max="360" value="0">
+            <button onclick="rotateLine(lines[${i}],document.getElementById('anglel-${i}').value*2*Math.PI/360)">rotate</button>
             <button onclick="lines.splice(${i},1);loadLineControl();">delete</button>
             <hr>
         </div>`
