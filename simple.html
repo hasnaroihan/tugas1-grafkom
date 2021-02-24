@@ -7,8 +7,9 @@
     <title>Grafika Komputer</title>
 </head>
 <body>
-    <button style="position: fixed; top: 5px; right: 5px;">Download</button>
-    <button style="position: fixed; top: 5px; right: 30px;">Load</button>
+    <button id="download" style="position: fixed; top: 5px; right: 1rem;">Download</button>
+    <input type='file' style="display: none;" id="file-input"/>
+    <button id="load" style="position: fixed; top: 50px; right: 1rem;">Load</button>
     <canvas id="canvas" height="500" width="800"></canvas>
     <div id="uiContainer">
     <div id="poligon">
@@ -42,6 +43,7 @@
     <script src="poligon.js"></script>
     <script src="line.js"></script>
     <script src="square.js"></script>
+    <script src="loader.js"></script>
 
     <script src="glsimple.js"></script>
 </body>
