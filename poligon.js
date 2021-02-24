@@ -109,6 +109,10 @@ function loadPoligonControl() {
             <input type="range" id="blue-${i}" min="0" max="100" value="${pol.color[2]*100}" onmousemove="for (let j = 0; j < poligons[${i}].sides; j++) {
                 poligons[${i}].color[j*3+2] = document.getElementById('blue-${i}').value/100;;
             }"><br>
+            <label for="angle-${i}">Sudut (derajat):</label>
+            <input type="number" id="angle-${i}" name="sides" min="0" max="360" value="0">
+            <button onclick="rotatePolygon(poligons[${i}],document.getElementById('angle-${i}').value*2*Math.PI/360)">rotate</button>
+            <button onclick="poligons.splice(${i},1);loadPoligonControl();">delete</button>
             <hr>
         </div>`
         i++;

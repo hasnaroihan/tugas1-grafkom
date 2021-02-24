@@ -104,15 +104,9 @@ gl.useProgram(glProgram);
 
 function get_projection(angle, a, zMin, zMax) {
     var ang = Math.tan((angle*.5)*Math.PI/180);//angle*.5
-    // return [
-    //     0.5/ang, 0 , 0, 0,
-    //     0, 0.5*a/ang, 0, 0,
-    //     0, 0, -(zMax+zMin)/(zMax-zMin), -1,
-    //     0, 0, (-2*zMax*zMin)/(zMax-zMin), 0
-    // ];
     return [
-        1, 0 , 0, 0,
-        0, 1, 0, 0,
+        0.5/ang, 0 , 0, 0,
+        0, 0.5*a/ang, 0, 0,
         0, 0, -(zMax+zMin)/(zMax-zMin), -1,
         0, 0, (-2*zMax*zMin)/(zMax-zMin), 0
     ];
@@ -123,7 +117,7 @@ var mov_matrix = [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1];
 var view_matrix = [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1];
 
 //translating z
-view_matrix[14] = view_matrix[14]-2; //zoom
+view_matrix[14] = view_matrix[14]-6; //zoom
 
 function translateView(dx, dy) {
     mov_matrix[12] += dx;
@@ -173,12 +167,12 @@ var mouseDown = function(e) {
         let y = e.clientY - rect.top;
         cursorX = -(x - rect.width/2)*scale*2/rect.width;
         cursorY = -(y - rect.height/2)*scale*2/rect.height;
-        console.log(cursorX+','+cursorY);
+        // console.log(cursorX+','+cursorY);
         invView = inverse(view_matrix);
         invProj = inverse(proj_matrix);
         invMov = inverse(mov_matrix);
         realPos = mul(mul(mul(invMov,invView),invProj),[cursorX, cursorY, 0, 0])
-        console.log(realPos)
+        // console.log(realPos)
         nearestVertex(realPos[0], -realPos[1]);
         oldCursorX = cursorX;
         oldCursorY = cursorY;
@@ -189,6 +183,7 @@ var mouseDown = function(e) {
 var mouseUp = function(e){
     // drag = false;
     move = false;
+    poligons[selectedPoligon.index].updateAnchor();
     // translatePolygon(poligons[1],[cursorX - oldCursorX, - cursorY + oldCursorY,0])
     // dataVertex = new Float32Array(poligons[1].vertex);
     // dataColor = new Float32Array(poligons[1].color);
