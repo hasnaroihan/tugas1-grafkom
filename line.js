@@ -73,7 +73,7 @@ function changeColor(line, color) {
     }
 }
 
-function nearestVertex(cursorX, cursorY) {
+function nearestLineVertex(cursorX, cursorY) {
     let min = Number.POSITIVE_INFINITY;
     for (let i = 0; i < lines.length; i++) {
         const el = lines[i];
@@ -88,6 +88,7 @@ function nearestVertex(cursorX, cursorY) {
             }
         }
     }
+    return min;
 }
 
 function loadLineControl() {
@@ -118,9 +119,9 @@ function loadLineControl() {
     });
 
     dom.innerHTML += `
-    <label for="sides">Jumlah sisi:</label>
-    <input type="number" id="sides" name="sides" min="3" value="3">
-    <button onclick="lines.push(generateLine(document.getElementById('sides').value)); loadLineControl();">Add Line</button>
+    <label for="vertex">Jumlah titik:</label>
+    <input type="number" id="vertex" name="sides" min="2" value="2">
+    <button onclick="lines.push(generateLine(document.getElementById('vertex').value)); loadLineControl();">Add Line</button>
     `
 }
 

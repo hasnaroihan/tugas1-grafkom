@@ -88,6 +88,7 @@ function nearestVertex(cursorX, cursorY) {
             }
         }
     }
+    return min;
 }
 
 function loadPoligonControl() {
@@ -111,7 +112,12 @@ function loadPoligonControl() {
             }"><br>
             <label for="angle-${i}">Sudut (derajat):</label>
             <input type="number" id="angle-${i}" name="sides" min="0" max="360" value="0">
-            <button onclick="rotatePolygon(poligons[${i}],document.getElementById('angle-${i}').value*2*Math.PI/360)">rotate</button>
+            <button onclick="rotatePolygon(poligons[${i}],document.getElementById('angle-${i}').value*2*Math.PI/360)">rotate</button><br>
+            <label for="x-${i}">X :</label>
+            <input type="number" id="x-${i}" name="sides" step="0.01" value="0">
+            <label for="y-${i}">Y :</label>
+            <input type="number" id="y-${i}" name="sides" step="0.01" value="0">
+            <button onclick="translatePolygon(poligons[${i}],[parseFloat(document.getElementById('x-${i}').value), parseFloat(document.getElementById('y-${i}').value), 0])">translate</button><br>
             <button onclick="poligons.splice(${i},1);loadPoligonControl();">delete</button>
             <hr>
         </div>`

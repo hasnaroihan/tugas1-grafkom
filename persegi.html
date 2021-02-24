@@ -4,16 +4,13 @@
         <Title>Getting Started</Title>
         <meta charset="utf-8">
         <link rel="stylesheet" href="webgl.css">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"
-            integrity="sha512-zhHQR0/H5SEBL3Wn6yYSaTTZej12z0hVZKOv3TwCUXT1z5qeqGcXJLLrbERYRScEDDpYIJhPC1fk31gqR783iQ=="
-            crossorigin="anonymous" defer></script>
         <script src="webgl.js" defer></script>
     </head>
     <body>
         <canvas id="gl-canvas" width="640" height="480"></canvas>
         <br>
-        <input id="xscale" type="number" value= "-0.5" placeholder="koordinat x">
-        <input id="yscale" type="number" value="0.5" placeholder="koordinat y">
+        <input id="xscale" type="number" placeholder="koordinat x" step="0.001">
+        <input id="yscale" type="number" placeholder="koordinat y" step="0.001">
         <button id="transformscale"> transform </button>
     </body>
 </html>

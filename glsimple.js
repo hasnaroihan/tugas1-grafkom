@@ -1,7 +1,9 @@
 var canvas = document.getElementById('canvas');
 
 var gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
- 
+
+var selectedMethod = 0;
+
 if(!gl) {
   // ada masalah, entah tidak support WebGL atau masalah lainnya...
   alert('Inisiasi WebGL gagal');
@@ -173,7 +175,18 @@ var mouseDown = function(e) {
         invMov = inverse(mov_matrix);
         realPos = mul(mul(mul(invMov,invView),invProj),[cursorX, cursorY, 0, 0])
         // console.log(realPos)
-        nearestVertex(realPos[0], -realPos[1]);
+        let minpol = nearestVertex(realPos[0], -realPos[1]);
+        let minsqu = nearestAnchor(realPos[0], -realPos[1]);
+        let minli = nearestLineVertex(realPos[0], -realPos[1]);
+        if (minpol < minsqu && minpol < minli) {
+            selectedMethod = 0;
+        }
+        else if (minli < minsqu) {
+            selectedMethod = 2;
+        }
+        else {
+            selectedMethod = 1;
+        }
         oldCursorX = cursorX;
         oldCursorY = cursorY;
     }
@@ -205,8 +218,17 @@ var mouseMove = function(e) {
         cursorX = -(x - rect.width/2)*scale*2/rect.width;
         cursorY = -(y - rect.height/2)*scale*2/rect.height;
         realPos = mul(mul(mul(invMov,invView),invProj),[cursorX , cursorY , 4, -scale])
-        poligons[selectedPoligon.index].vertex[selectedPoligon.vIndex*3] = realPos[0];
-        poligons[selectedPoligon.index].vertex[selectedPoligon.vIndex*3+1] = - realPos[1];
+        if (selectedMethod == 0) {
+            poligons[selectedPoligon.index].vertex[selectedPoligon.vIndex*3] = realPos[0];
+            poligons[selectedPoligon.index].vertex[selectedPoligon.vIndex*3+1] = - realPos[1];
+        }
+        else if(selectedMethod == 1){
+            squares[selectedSquare].anchor = [realPos[0], -realPos[1],0];
+        }
+        else if(selectedMethod == 2){
+            lines[selectedLine.index].vertex[selectedLine.vIndex*3] = realPos[0];
+            lines[selectedLine.index].vertex[selectedLine.vIndex*3+1] = - realPos[1];
+        }
     }
     // else if (drag) {
     //     // dX = (e.pageX-old_x)*(-scale)*2/canvas.width,
@@ -276,6 +298,36 @@ var animate = function(time) {
 
         gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
         gl.drawArrays(gl.TRIANGLE_FAN, 0, el.sides);
+    });
+
+    lines.forEach(el => {
+        dataVertex = new Float32Array(el.vertex);
+        dataColor = new Float32Array(el.color);
+    
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
+        // setting data WebGLBuffer menggunakan ArrayBufferView
+        gl.bufferData(gl.ARRAY_BUFFER, dataVertex, gl.STATIC_DRAW)
+        gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
+        // setting data WebGLBuffer menggunakan ArrayBufferView
+        gl.bufferData(gl.ARRAY_BUFFER, dataColor, gl.STATIC_DRAW);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
+        gl.drawArrays(gl.LINE_STRIP, 0, el.sides);
+    });
+
+    squares.forEach(el => {
+        dataVertex = new Float32Array(el.vertex());
+        dataColor = new Float32Array(el.color);
+    
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
+        // setting data WebGLBuffer menggunakan ArrayBufferView
+        gl.bufferData(gl.ARRAY_BUFFER, dataVertex, gl.STATIC_DRAW)
+        gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
+        // setting data WebGLBuffer menggunakan ArrayBufferView
+        gl.bufferData(gl.ARRAY_BUFFER, dataColor, gl.STATIC_DRAW);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     });
     window.requestAnimationFrame(animate);
 }
